@@ -1,0 +1,58 @@
+[*]
+[*] GTKWave Analyzer v3.3.71 (w)1999-2016 BSI
+[*] Wed Jan 24 12:10:14 2024
+[*]
+[dumpfile] "D:\mksc_intel\lab_4\T2\axim_to_hdmi.vcd"
+[dumpfile_mtime] "Wed Jan 24 12:07:40 2024"
+[dumpfile_size] 8383712
+[savefile] "D:\mksc_intel\lab_4\T2\t2.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -191 -191
+*-28.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] AXIM_TO_HDMI_tb.
+[sst_width] 197
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 300
+@28
+AXIM_TO_HDMI_tb.UUT.CLK
+AXIM_TO_HDMI_tb.UUT.CLR
+@200
+-
+@22
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARADDR[31:0]
+@28
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARBURST[1:0]
+@22
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARCACHE[3:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARID[5:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARLEN[3:0]
+@28
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARLOCK[1:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARPROT[2:0]
+@22
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARQOS[3:0]
+@28
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARREADY
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARSIZE[1:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_ARVALID
+@22
+AXIM_TO_HDMI_tb.UUT.M_AXI_RDATA[31:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_RID[5:0]
+@28
+AXIM_TO_HDMI_tb.UUT.M_AXI_RLAST
+AXIM_TO_HDMI_tb.UUT.M_AXI_RREADY
+AXIM_TO_HDMI_tb.UUT.M_AXI_RRESP[1:0]
+AXIM_TO_HDMI_tb.UUT.M_AXI_RVALID
+@29
+AXIM_TO_HDMI_tb.UUT.HD_CLK
+@28
+AXIM_TO_HDMI_tb.UUT.HD_DE
+@22
+AXIM_TO_HDMI_tb.UUT.HD_D[15:0]
+@28
+AXIM_TO_HDMI_tb.UUT.HD_HSYNC
+AXIM_TO_HDMI_tb.UUT.HD_VSYNC
+[pattern_trace] 1
+[pattern_trace] 0

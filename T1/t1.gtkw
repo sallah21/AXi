@@ -1,0 +1,71 @@
+[*]
+[*] GTKWave Analyzer v3.3.71 (w)1999-2016 BSI
+[*] Wed Jan 17 13:53:28 2024
+[*]
+[dumpfile] "D:\mksc_intel\lab_4\T1\ov76_to_axim.vcd"
+[dumpfile_mtime] "Wed Jan 17 13:49:33 2024"
+[dumpfile_size] 61860296
+[savefile] "D:\mksc_intel\lab_4\T1\t1.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -235 -35
+*-28.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] OV76_TO_AXIM_tb.
+[sst_width] 197
+[signals_width] 247
+[sst_expanded] 1
+[sst_vpaned_height] 300
+@28
+OV76_TO_AXIM_tb.UUT.CLK
+OV76_TO_AXIM_tb.UUT.CLR
+@200
+-Camera signals
+@28
+OV76_TO_AXIM_tb.UUT.CAM_PCLK
+OV76_TO_AXIM_tb.UUT.CAM_CE
+OV76_TO_AXIM_tb.UUT.CAM_CLK[1:0]
+@22
+OV76_TO_AXIM_tb.UUT.CAM_DQ[7:0]
+OV76_TO_AXIM_tb.UUT.CAM_D[7:0]
+@28
+OV76_TO_AXIM_tb.UUT.CAM_H
+OV76_TO_AXIM_tb.UUT.CAM_HQ
+OV76_TO_AXIM_tb.UUT.CAM_V
+OV76_TO_AXIM_tb.UUT.CAM_VQ
+@200
+-AXI Signals
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_AWADDR[31:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_AWBURST[1:0]
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_AWCACHE[3:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_AWID[5:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_AWLEN[3:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_AWLOCK[1:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_AWPROT[2:0]
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_AWQOS[3:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_AWREADY
+OV76_TO_AXIM_tb.UUT.M_AXI_AWSIZE[1:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_AWVALID
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_BID[5:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_BREADY
+OV76_TO_AXIM_tb.UUT.M_AXI_BRESP[1:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_BVALID
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_WDATA[31:0]
+OV76_TO_AXIM_tb.UUT.M_AXI_WID[5:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_WLAST
+OV76_TO_AXIM_tb.UUT.M_AXI_WREADY
+@22
+OV76_TO_AXIM_tb.UUT.M_AXI_WSTRB[3:0]
+@28
+OV76_TO_AXIM_tb.UUT.M_AXI_WVALID
+[pattern_trace] 1
+[pattern_trace] 0
