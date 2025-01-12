@@ -146,7 +146,8 @@ module OV76_TO_AXIM(
   reg [31:0] M_AXI_AWADDR;
   reg [3:0] M_AXI_AWLEN;	//Write length
   reg [31:0] M_AXI_WDATA;
-  reg [1:0] MD_Q;
+  // reg [1:0] MD_Q;
+  reg [2:0] MD_Q;
   reg [1:0] MB_Q;
   reg [3:0] CTRL_Q;
   reg IRQ;
@@ -173,6 +174,8 @@ module OV76_TO_AXIM(
   ////////////////////////////
 
   wire capture_point = CAM_CE & CAM_HQ;
+  reg [9:0] horizontal_cnt = 10'd0;
+  reg RE; //Read enable
 
   ////////////////////////////
 
@@ -202,6 +205,7 @@ module OV76_TO_AXIM(
       begin
         if(CAM_VQ)
         begin
+          FRM_CNT <= 9'd0;
           FRM_Q <= 1 << FRM_CAPT_0;
         end
       end
@@ -233,24 +237,29 @@ module OV76_TO_AXIM(
       begin
         if(capture_point)
         begin
-          FRM_CNT <= FRM_CNT + 9'd1;
-          if (FRM_CNT == 9'd480)
+          horizontal_cnt <= horizontal_cnt + 10'd1;
+          if(horizontal_cnt == 10'd639)
           begin
-            FRM_CNT <= 9'd0;
             FRM_Q <= 1 << FRM_NEW_LINE;
+            horizontal_cnt <= 10'd0;
           end
           else
           begin
             FRM_Q <= 1 << FRM_CAPT_0;
           end
-
         end
       end
       FRM_Q[FRM_NEW_LINE]:
       begin
-        if (CAM_VQ)
+        if (CAM_HQ && FRM_CNT < 9'd479)
         begin
+          FRM_CNT <= FRM_CNT + 9'd1;
           FRM_Q <= 1 << FRM_CAPT_0;
+        end
+        else if (CAM_HQ && FRM_CNT == 9'd479)
+        begin
+          FRM_CNT <= 9'd0;
+          FRM_Q <= 1 << FRM_START;
         end
       end
     endcase
@@ -266,7 +275,8 @@ module OV76_TO_AXIM(
     begin
       BUF_PTR_W <= BUF_PTR_W + {9'd0, BUF_WR};
       BUF_PTR_R <= BUF_PTR_R + {9'd0, BUF_RD};
-      BUF_CNT <= BUF_CNT + {11{BUF_RD}} + {10'd0, BUF_WR};
+      // Update buffer count: +1 on write, -1 on read
+      BUF_CNT <= BUF_CNT + {{10{1'b0}}, BUF_WR} - {{10{1'b0}}, BUF_RD};
     end
     //RAMB - dual port memory for FIFO
     if(BUF_WR)
@@ -281,16 +291,65 @@ module OV76_TO_AXIM(
     BUF_FLUSH <= (FRM_DONE | BUF_FLUSH) & ~CTRL_Q[CTRL_IDLE];
     BUF_RA <= BUF_PTR_R;
     // Debug devices
+  end
 
+
+  //////////////////////////
+  // AXI Master Data controller
+  //////////////////////////
+
+  always @(posedge CLK)
+  begin
+    if(CLR)
+    begin
+      M_AXI_WDATA <= 32'd0;
+      WR_CNT <= 5'd0;
+      RE <= 1'b0;
+      MD_Q <= 1 << MD_IDLE;
+    end
+    else
+    begin
+      case(1'b1)
+        MD_Q[MD_IDLE]:
+        begin
+          M_AXI_WDATA <= BUF[BUF_RA];
+          if (BUF_RDY)
+          begin
+            MD_Q <= 1 << MD_VALID;
+          end
+        end
+        MD_Q[MD_VALID]:
+        begin
+          RE <= 1'b1;
+          M_AXI_WDATA <= BUF[BUF_RA];
+          if (M_AXI_WREADY)
+          begin
+            MD_Q <= 1 << MD_NEXT;
+          end
+        end
+        MD_Q[MD_NEXT]:
+        begin
+          WR_CNT <= WR_CNT + 5'd1;
+          if (WR_CNT == WR_CNT_D)
+          begin
+            MD_Q <= 1 << MD_IDLE;
+          end
+          else
+          begin
+            MD_Q <= 1 << MD_VALID;
+          end
+        end
+      endcase
+    end
   end
 
   assign WR_CNT_D = (CTRL_Q[CTRL_INIT] ? D_LEN : WR_CNT) + {5'h1F};
 
   assign BUF_Q = BUF[BUF_RA];
 
-
   assign FRM_DONE = FRM_CNT[8] & FRM_CNT[7] & FRM_CNT[6] & FRM_CNT[5]; //480 lines
   assign BUF_WR = FRM_Q[FRM_CAPT_3] & CAM_CE;
+  assign BUF_RD =  RE && BUF_RDY;
 
   assign BUF_RDY = |BUF_CNT[10:4]; //at least 16 items in buffer
   assign BUF_EMPTY = ~|BUF_CNT;
@@ -304,7 +363,7 @@ module OV76_TO_AXIM(
   assign M_AXI_AWID = 6'b00_1000;
 
   assign M_AXI_WID = 6'b00_1000;
-  assign M_AXI_WVALID = MD_Q[0];
+  assign M_AXI_WVALID = MD_Q[1];
   assign M_AXI_WLAST = WR_CNT[4];
   assign M_AXI_WSTRB = 4'b1111;
 

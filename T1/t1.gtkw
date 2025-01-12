@@ -1,20 +1,20 @@
 [*]
-[*] GTKWave Analyzer v3.3.71 (w)1999-2016 BSI
-[*] Wed Jan 17 13:53:28 2024
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun Jan 12 17:35:13 2025
 [*]
-[dumpfile] "D:\mksc_intel\lab_4\T1\ov76_to_axim.vcd"
-[dumpfile_mtime] "Wed Jan 17 13:49:33 2024"
-[dumpfile_size] 61860296
-[savefile] "D:\mksc_intel\lab_4\T1\t1.gtkw"
-[timestart] 0
-[size] 1920 1017
-[pos] -235 -35
-*-28.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[dumpfile] "/Users/salsamon/ASIC/Metody_Komunikacji_w_Systemach_Cyfrowych/lab3_axi/T1/ov76_to_axim.vcd"
+[dumpfile_mtime] "Sun Jan 12 17:34:03 2025"
+[dumpfile_size] 60054280
+[savefile] "/Users/salsamon/ASIC/Metody_Komunikacji_w_Systemach_Cyfrowych/lab3_axi/T1/t1.gtkw"
+[timestart] 1893400000
+[size] 1904 943
+[pos] 1688 49
+*-25.000000 1904900000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] OV76_TO_AXIM_tb.
-[sst_width] 197
+[sst_width] 253
 [signals_width] 247
 [sst_expanded] 1
-[sst_vpaned_height] 300
+[sst_vpaned_height] 282
 @28
 OV76_TO_AXIM_tb.UUT.CLK
 OV76_TO_AXIM_tb.UUT.CLR
@@ -67,5 +67,25 @@ OV76_TO_AXIM_tb.UUT.M_AXI_WREADY
 OV76_TO_AXIM_tb.UUT.M_AXI_WSTRB[3:0]
 @28
 OV76_TO_AXIM_tb.UUT.M_AXI_WVALID
+@200
+-TEST
+@29
+OV76_TO_AXIM_tb.UUT.MD_Q[2:0]
+@24
+OV76_TO_AXIM_tb.UUT.BUF_CNT[10:0]
+@28
+OV76_TO_AXIM_tb.UUT.BUF_WR
+OV76_TO_AXIM_tb.UUT.BUF_RDY
+OV76_TO_AXIM_tb.UUT.BUF_RD
+OV76_TO_AXIM_tb.UUT.FRM_Q[6:0]
+@24
+OV76_TO_AXIM_tb.UUT.horizontal_cnt[9:0]
+OV76_TO_AXIM_tb.UUT.FRM_CNT[8:0]
+@28
+OV76_TO_AXIM_tb.UUT.FRM_DONE
+@22
+OV76_TO_AXIM_tb.UUT.FRM_0[7:0]
+OV76_TO_AXIM_tb.UUT.FRM_1[7:0]
+OV76_TO_AXIM_tb.UUT.FRM_2[7:0]
 [pattern_trace] 1
 [pattern_trace] 0
