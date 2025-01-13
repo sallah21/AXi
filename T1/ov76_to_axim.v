@@ -100,8 +100,8 @@ module OV76_TO_AXIM(
   //WR - Data channel
   output [31:0] M_AXI_WDATA;
   output [5:0] M_AXI_WID;
-  output [3:0] M_AXI_WSTRB;
   output M_AXI_WLAST;
+  output [3:0] M_AXI_WSTRB;
   output M_AXI_WVALID;
   input M_AXI_WREADY;
 
@@ -149,6 +149,7 @@ module OV76_TO_AXIM(
   // reg [1:0] MD_Q;
   reg [2:0] MD_Q;
   reg [1:0] MB_Q;
+  reg [1:0] MA_Q;
   reg [3:0] CTRL_Q;
   reg IRQ;
 
@@ -176,7 +177,12 @@ module OV76_TO_AXIM(
   wire capture_point = CAM_CE & CAM_HQ;
   reg [9:0] horizontal_cnt = 10'd0;
   reg RE; //Read enable
-
+  wire ongoing_transaction_data;
+  assign ongoing_transaction_data = M_AXI_WVALID & M_AXI_WREADY;
+  wire ongoing_transaction_address;
+  assign ongoing_transaction_address = M_AXI_AWVALID & M_AXI_AWREADY;
+  wire ongoing_transaction_response;
+  assign ongoing_transaction_response = M_AXI_BVALID & M_AXI_BREADY;
   ////////////////////////////
 
   ////////////////////////////
@@ -293,11 +299,66 @@ module OV76_TO_AXIM(
     // Debug devices
   end
 
+  //////////////////////////
+  // AXI Master Address controller
+  //////////////////////////
+  reg [31:0] write_addr;  // Add register for tracking write address
+
+  always @(posedge CLK)
+  begin
+    if(CLR)
+    begin
+      M_AXI_AWADDR <= 32'd0;
+      M_AXI_AWVALID <= 1'b0;
+      M_AXI_AWLEN <= 4'd15; //16 words burst
+      MA_Q <= 1 << MA_IDLE;
+      write_addr <= FRM_ADDR;  // Initialize with base address
+    end
+    else
+    begin
+      case(1'b1)
+      MA_Q[MA_IDLE]:
+      begin
+        if (CTRL_Q[CTRL_INIT] && BUF_RDY) begin
+          M_AXI_AWADDR <= write_addr;
+          M_AXI_AWVALID <= 1'b1;
+        end
+        if (M_AXI_AWREADY && M_AXI_AWVALID)
+        begin
+          MA_Q <= 1 << MA_VALID;
+          M_AXI_AWVALID <= 1'b0;
+          write_addr <= write_addr + 32'd64;  // Increment by 64 bytes (16 words)
+        end
+      end
+      MA_Q[MA_VALID]:
+      begin
+        if (ongoing_transaction_response)
+        begin
+          MA_Q <= 1 << MA_IDLE;
+        end
+      end
+      endcase
+    end
+  end
+
+  //////////////////////////
+  // FIFO Read Pointer Control
+  //////////////////////////
+  always @(posedge CLK)
+  begin
+    if(CLR)
+    begin
+      BUF_PTR_R <= 10'd0;
+    end
+    else if(RE)
+    begin
+      BUF_PTR_R <= BUF_PTR_R + 10'd1;
+    end
+  end
 
   //////////////////////////
   // AXI Master Data controller
   //////////////////////////
-
   always @(posedge CLK)
   begin
     if(CLR)
@@ -312,32 +373,108 @@ module OV76_TO_AXIM(
       case(1'b1)
         MD_Q[MD_IDLE]:
         begin
-          M_AXI_WDATA <= BUF[BUF_RA];
-          if (BUF_RDY)
+          RE <= 1'b0;
+          WR_CNT <= 5'd0;
+          if (BUF_RDY && MA_Q[MA_VALID])
           begin
+            M_AXI_WDATA <= BUF[BUF_PTR_R];
             MD_Q <= 1 << MD_VALID;
+            RE <= 1'b1;
           end
         end
         MD_Q[MD_VALID]:
         begin
-          RE <= 1'b1;
-          M_AXI_WDATA <= BUF[BUF_RA];
           if (M_AXI_WREADY)
           begin
-            MD_Q <= 1 << MD_NEXT;
+            if (WR_CNT == 4'hF) begin  // Last word of burst
+              MD_Q <= 1 << MD_NEXT;
+              RE <= 1'b0;
+            end else begin
+              WR_CNT <= WR_CNT + 1;
+              M_AXI_WDATA <= BUF[BUF_PTR_R];
+              RE <= 1'b1;
+            end
           end
         end
         MD_Q[MD_NEXT]:
         begin
-          WR_CNT <= WR_CNT + 5'd1;
-          if (WR_CNT == WR_CNT_D)
+          MD_Q <= 1 << MD_IDLE;
+        end
+      endcase
+    end
+  end
+
+  //////////////////////////
+  // AXI Master Response controller
+  //////////////////////////
+
+  always @(posedge CLK)
+  begin
+    if(CLR)
+    begin
+      MB_Q <= 1 << MB_IDLE;
+    end
+    else
+    begin
+      case(1'b1)
+        MB_Q[MB_IDLE]:
+        begin
+          if (MA_Q[MA_VALID])
           begin
-            MD_Q <= 1 << MD_IDLE;
+            MB_Q <= 1 << MB_WAIT;
           end
-          else
+        end
+        MB_Q[MB_WAIT]:
+        begin
+          if (M_AXI_BVALID)
           begin
-            MD_Q <= 1 << MD_VALID;
+            MB_Q <= 1 << MB_ACK;
           end
+        end
+        MB_Q[MB_ACK]:
+        begin
+          MB_Q <= 1 << MB_IDLE;
+        end
+      endcase
+    end
+  end
+
+  //////////////////////////
+  // Control FSM
+  //////////////////////////
+
+  always @(posedge CLK)
+  begin
+    if(CLR)
+    begin
+      CTRL_Q <= 1 << CTRL_IDLE;
+    end
+    else
+    begin
+      case(1'b1)
+        CTRL_Q[CTRL_IDLE]:
+        begin
+          if(FRM_RQ) begin
+            CTRL_Q <= 1 << CTRL_INIT;
+          end
+        end
+        CTRL_Q[CTRL_INIT]:
+        begin
+          if (ongoing_transaction_address && ongoing_transaction_data)
+          begin
+            CTRL_Q <= 1 << CTRL_TRANS;
+          end
+        end
+        CTRL_Q[CTRL_TRANS]:
+        begin
+          if (ongoing_transaction_response)
+          begin
+            CTRL_Q <= 1 << CTRL_WAIT;
+          end
+        end
+        CTRL_Q[CTRL_WAIT]:
+        begin
+          CTRL_Q <= 1 << CTRL_INIT;
         end
       endcase
     end
@@ -363,8 +500,8 @@ module OV76_TO_AXIM(
   assign M_AXI_AWID = 6'b00_1000;
 
   assign M_AXI_WID = 6'b00_1000;
-  assign M_AXI_WVALID = MD_Q[1];
-  assign M_AXI_WLAST = WR_CNT[4];
+  assign M_AXI_WVALID = MD_Q[MD_VALID];  // Only valid in MD_VALID state
+  assign M_AXI_WLAST = MD_Q[MD_VALID] && (WR_CNT == 4'hF);  // Assert on last word
   assign M_AXI_WSTRB = 4'b1111;
 
   assign M_AXI_BREADY = MB_Q[1];
