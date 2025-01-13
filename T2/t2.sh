@@ -2,7 +2,7 @@
 
 rm -f t2
 rm -f axim_to_hdmi.vcd
-
+clear 
 iverilog -Wall -s AXIM_TO_HDMI_tb -o t2 axi_s_bfm.v axim_to_hdmi.v axim_to_hdmi_tb.v
 
 if [ $? -eq 1 ]; then
@@ -10,7 +10,7 @@ if [ $? -eq 1 ]; then
     exit 1
 fi
 
-vvp ex1
+vvp t2
 
 if [ $? -ne 0 ]; then
     echo Running simulation failure
